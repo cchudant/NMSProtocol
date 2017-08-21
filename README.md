@@ -6,5 +6,5 @@ Uses NMS with a little Reflection, so this lib is update-friendly and should wor
 You can use the /reload with this plugin.
 
 # WIP
-Performances not tested, althrough I used very little Reflection which will be called only on server startup.
+Performances not tested, althrough I used very little Reflection which will be only called on server startup.
 Per-connection protocol injection is done only with direct calls.

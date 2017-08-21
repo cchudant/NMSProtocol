@@ -2,7 +2,6 @@ package me.skybeast.nmsprotocol;
 
 import io.netty.channel.*;
 import io.netty.channel.ChannelHandler.Sharable;
-import me.skybeast.nmsprotocol.NMSReflection.FieldAccessor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -16,20 +15,6 @@ import java.util.logging.Level;
 @SuppressWarnings("ProhibitedExceptionDeclared")
 public final class Protocol
 {
-    /*
-     * Accessors
-     */
-
-    // Player injection
-    private static final FieldAccessor<Object>  PLAYERCONNECTION_NETWORKMANAGER =
-            NMSReflection.getFieldAccessor(NMSReflection.getClass("{nms}.PlayerConnection"), "networkManager");
-    private static final FieldAccessor<Channel> NETWORKMANAGER_CHANNEL          =
-            NMSReflection.getFirstFieldOfTypeAccessor("{nms}.NetworkManager", Channel.class);
-    private static final FieldAccessor<Object>  ENTITYPLAYER_PLAYERCONNECTION   =
-            NMSReflection.getFieldAccessor("{nms}.EntityPlayer", "playerConnection");
-    private static final FieldAccessor<Object>  CRAFTENTITY_ENTITY              =
-            NMSReflection.getFieldAccessor("{cb}.entity.CraftEntity", "entity");
-
     private static final boolean                           SNIFFER  = false;
     static final         Map<SocketAddress, PacketHandler> HANDLERS = new ConcurrentHashMap<>();
     private static List<ChannelFuture> channelFutures;
@@ -61,11 +46,11 @@ public final class Protocol
     }
 
     private static Channel getChannel(Player player)
-    {
-        Object nmsPlayer        = CRAFTENTITY_ENTITY.get(player);
-        Object playerConnection = ENTITYPLAYER_PLAYERCONNECTION.get(nmsPlayer);
-        Object networkManager   = PLAYERCONNECTION_NETWORKMANAGER.get(playerConnection);
-        return NETWORKMANAGER_CHANNEL.get(networkManager);
+    { //Only called on startup - no reflection cache needed.
+        Object nmsPlayer        = NMSReflection.getValue(player, "entity");
+        Object playerConnection = NMSReflection.getValue(nmsPlayer, "playerConnection");
+        Object networkManager   = NMSReflection.getValue(playerConnection, "networkManager");
+        return NMSReflection.getFirstValueOfType(networkManager, Channel.class);
     }
 
     public static void clean()
