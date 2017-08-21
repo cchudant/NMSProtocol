@@ -1,4 +1,4 @@
 name: NMSProtocol
-version: 1.0
+version: $version
 main: me.skybeast.nmsprotocol.Main
-author: SkyBeast
+author: $authors

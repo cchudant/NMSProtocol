@@ -13,7 +13,7 @@ import java.util.function.Supplier;
  * A class to use Reflection in Minecraft easily.
  * <p>
  * Idea taken from
- * {@link <a href="https://github.com/aadnk/ProtocolLib/blob/master/modules/TinyProtocol/src/main/java/com/comphenix/tinyprotocol/Reflection.java">TinyProtocol</a>}
+ * <a href="https://github.com/aadnk/ProtocolLib/blob/master/modules/TinyProtocol/src/main/java/com/comphenix/tinyprotocol/Reflection.java">TinyProtocol</a>
  *
  * @author SkyBeast
  */
@@ -1066,7 +1066,7 @@ public final class NMSReflection
     }
 
     /**
-     * {@link <a href="http://stackoverflow.com/questions/195321/why-is-class-newinstance-evil">Evil</a>}
+     * <a href="http://stackoverflow.com/questions/195321/why-is-class-newinstance-evil">Evil</a>
      *
      * @param clazz the class to instanciate
      * @return the new instance
@@ -1079,8 +1079,8 @@ public final class NMSReflection
     }
 
     /**
-     * {@link <a href="http://stackoverflow.com/questions/195321/why-is-class-newinstance-evil">Evil</a>} This method
-     * resolves the class.
+     * <a href="http://stackoverflow.com/questions/195321/why-is-class-newinstance-evil">Evil</a> This method resolves
+     * the class.
      *
      * @param clazz a string representing the clazz
      * @return the new instance

@@ -29,7 +29,7 @@ public final class Protocol
     {
         long start = System.currentTimeMillis();
         LOG.info("Injection started.");
-        LOG.info("Sniffer is " + (SNIFFER ? "enabled" : "disabled"));
+        LOG.info("Sniffer is " + (SNIFFER ? "enabled." : "disabled."));
 
 
         Object mcServer      = NMSReflection.getValue(Bukkit.getServer(), "console");
