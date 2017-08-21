@@ -11,12 +11,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @SuppressWarnings("ProhibitedExceptionDeclared")
 public final class Protocol
 {
+    private static final Logger                            LOG      = Logger.getLogger("NMSProtocol");
     private static final boolean                           SNIFFER  = false;
-    static final         Map<SocketAddress, PacketHandler> HANDLERS = new ConcurrentHashMap<>();
+    private static final Map<SocketAddress, PacketHandler> HANDLERS = new ConcurrentHashMap<>();
     private static List<ChannelFuture> channelFutures;
 
     /*
@@ -25,6 +27,11 @@ public final class Protocol
 
     public static void inject()
     {
+        long start = System.currentTimeMillis();
+        LOG.info("Injection started.");
+        LOG.info("Sniffer is " + (SNIFFER ? "enabled" : "disabled"));
+
+
         Object mcServer      = NMSReflection.getValue(Bukkit.getServer(), "console");
         Object srvConnection = NMSReflection.getFirstValueOfType(mcServer, "{nms}.ServerConnection");
         channelFutures = NMSReflection.getFirstValueOfType(srvConnection, List.class); //Steal channelFutures list
@@ -35,14 +42,18 @@ public final class Protocol
         for (Player player : Bukkit.getOnlinePlayers()) // /reload support
             injectPlayer(player);                       // (inject to already connected players)
 
+        long elapsed = System.currentTimeMillis() - start;
+        LOG.info("Injection finished. (" + elapsed + " ms)");
     }
 
     private static void injectPlayer(Player player)
     {
+        LOG.info("Injection to already connected player " + player.getName() + " [" + player.getAddress() + "].");
         Channel ch = getChannel(player);
 
-        if (ch.pipeline().get(PacketHandler.ID) == null)
-            ch.pipeline().addBefore("packet_handler", PacketHandler.ID, new PacketHandler(ch));
+        PacketHandler handler = new PacketHandler(ch);
+        ch.pipeline().addBefore("packet_handler", PacketHandler.ID, handler);
+        HANDLERS.put(ch.remoteAddress(), handler);
     }
 
     private static Channel getChannel(Player player)
@@ -55,6 +66,8 @@ public final class Protocol
 
     public static void clean()
     {
+        long start = System.currentTimeMillis();
+        LOG.info("Cleanup started.");
         if (channelFutures == null)
             return;
 
@@ -64,6 +77,15 @@ public final class Protocol
             if (pp.get(ChannelFutureHandler.ID) != null)
                 pp.remove(ChannelFutureHandler.ID);
         }
+
+        for (PacketHandler handler : HANDLERS.values())
+        {
+            handler.channel.pipeline().remove(handler); //Remove all handlers
+        }
+
+
+        long elapsed = System.currentTimeMillis() - start;
+        LOG.info("Cleanup finished. (" + elapsed + " ms)");
     }
 
     public static boolean sendPacket(Player to, Object packet)
@@ -208,10 +230,10 @@ public final class Protocol
         }
         catch (IllegalAccessException e)
         {
-            Bukkit.getLogger().log(Level.SEVERE, builder.toString(), e);
+            LOG.log(Level.SEVERE, builder.toString(), e);
         }
 
-        Bukkit.getLogger().info(builder.toString());
+        LOG.info(builder.toString());
     }
 
     private Protocol() {}
